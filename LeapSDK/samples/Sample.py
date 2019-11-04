@@ -11,9 +11,9 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x64'))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x86'))
 sys.path.insert(0, lib_dir)
-import Leap
+import Leap, csv
 
 
 class SampleListener(Leap.Listener):
@@ -67,7 +67,9 @@ class SampleListener(Leap.Listener):
 
             # Get fingers
             fingerList = []
+            handCapture = []
             for finger in hand.fingers:
+                fingerCapture = []
                 boneList = []
                 boneList.append(finger.bone(0).prev_joint)
                 boneList.append(finger.bone(1).prev_joint)
@@ -83,15 +85,25 @@ class SampleListener(Leap.Listener):
 
                 # Get bones
                 for b in range(0, 4):
+                    boneCapture = []
                     bone = finger.bone(b)
                     print "      Bone: %s, start: %s, end: %s, direction: %s" % (
                         self.bone_names[bone.type],
                         bone.prev_joint,
                         bone.next_joint,
                         bone.direction)
+                    boneCapture.append(self.bone_names[bone.type])
+                    boneCapture.append(bone.prev_joint)
+                    boneCapture.append(bone.next_joint)
+                    boneCapture.append(bone.direction)
+                    fingerCapture.append(boneCapture)
+                handCapture.append(fingerCapture)
 
             if hand.grab_strength > 0.9:
                 print "Could be A"
+
+            
+
 
             thumbDirectionProximal = hand.fingers[0].bone(1).direction
             thumbDirectionInt = hand.fingers[0].bone(2).direction
@@ -115,6 +127,10 @@ class SampleListener(Leap.Listener):
             # 0 - thumb [x,y,z]
             # 4 - pinky [x,y,z]
             print "", fingerList[0][0]
+
+            with open('saveData', 'wb') as myfile:
+                wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+                wr.writerow(handCapture)
 
         if not frame.hands.is_empty:
             print ""
