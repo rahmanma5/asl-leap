@@ -11,7 +11,7 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x86'))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x64'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 
@@ -93,9 +93,9 @@ class SampleListener(Leap.Listener):
                         bone.next_joint,
                         bone.direction)
                     boneCapture.append(self.bone_names[bone.type])
-                    boneCapture.append(bone.prev_joint)
-                    boneCapture.append(bone.next_joint)
-                    boneCapture.append(bone.direction)
+                    boneCapture.append(str(bone.prev_joint))
+                    boneCapture.append(str(bone.next_joint))
+                    boneCapture.append(str(bone.direction))
                     fingerCapture.append(boneCapture)
                 handCapture.append(fingerCapture)
 
@@ -128,7 +128,7 @@ class SampleListener(Leap.Listener):
             # 4 - pinky [x,y,z]
             print "", fingerList[0][0]
 
-            with open('saveData', 'wb') as myfile:
+            with open('saveData', 'a+') as myfile:
                 wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
                 wr.writerow(handCapture)
 
