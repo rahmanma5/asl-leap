@@ -1,11 +1,3 @@
-################################################################################
-# Copyright (C) 2012-2016 Leap Motion, Inc. All rights reserved.               #
-# Leap Motion proprietary and confidential. Not for distribution.              #
-# Use subject to the terms of the Leap Motion SDK Agreement available at       #
-# https://developer.leapmotion.com/sdk_agreement, or another agreement         #
-# between Leap Motion and you, your company or other organization.             #
-################################################################################
-
 import thread, time
 import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
@@ -27,7 +19,6 @@ class SampleListener(Leap.Listener):
         print "Connected"
 
     def on_disconnect(self, controller):
-        # Note: not dispatched when running in a debugger.
         print "Disconnected"
 
     def on_exit(self, controller):
@@ -66,17 +57,7 @@ class SampleListener(Leap.Listener):
                 arm.elbow_position)
 
             # Get fingers
-            fingerList = []
-            handCapture = []
             for finger in hand.fingers:
-                fingerCapture = []
-                boneList = []
-                boneList.append(finger.bone(0).prev_joint)
-                boneList.append(finger.bone(1).prev_joint)
-                boneList.append(finger.bone(2).prev_joint)
-                boneList.append(finger.bone(3).prev_joint)
-                boneList.append(finger.bone(4).next_joint)
-                fingerList.append(boneList)
                 print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
                     self.finger_names[finger.type],
                     finger.id,
@@ -92,66 +73,10 @@ class SampleListener(Leap.Listener):
                         bone.prev_joint,
                         bone.next_joint,
                         bone.direction)
-                    boneCapture.append(self.bone_names[bone.type])
-                    boneCapture.append(bone.prev_joint)
-                    boneCapture.append(bone.next_joint)
-                    boneCapture.append(bone.direction)
-                    fingerCapture.append(boneCapture)
-                handCapture.append(fingerCapture)
 
-            if hand.grab_strength > 0.9:
-                print "Could be A"
-
-            
-
-
-            thumbDirectionProximal = hand.fingers[0].bone(1).direction
-            thumbDirectionInt = hand.fingers[0].bone(2).direction
-            thumbDirectionDistal = hand.fingers[0].bone(3).direction
-            diff = thumbDirectionProximal[0] - thumbDirectionDistal[0]
-
-            if thumbDirectionInt[1] > 0.18 and hand.grab_strength < 0.2:
-                print "Could be B"
-
-            
-            #print "It be ", intermediateList[0][1]
-            isC = True
-            for x in range(1,3):
-                if fingerList[x][1][1] < fingerList[x+1][1][1]+10:
-                    isC = False
-            if isC:
-                print "Could be a C"
-
-
-            # FINGERS:
-            # 0 - thumb [x,y,z]
-            # 4 - pinky [x,y,z]
-            print "", fingerList[0][0]
-
-            logHandData(handCapture)
-            
 
         if not frame.hands.is_empty:
             print ""
-
-def logHandData(hand):
-    temp = []
-    for x in range(0,4):
-        for i in range(0,4):
-            currentFinger = hand[x]
-            temp.append(str(currentFinger[i][0]))
-            for j in range(1,4):
-                for k in range(0,3):
-                    temp.append(str(currentFinger[i][j][k]))
-    #print(temp)
-    with open('saveData', 'a+') as myfile:
-        wr = csv.writer(myfile)
-        wr.writerow(temp)
-
-
-    return
-
-
 
 def main():
     # Create a sample listener and controller
