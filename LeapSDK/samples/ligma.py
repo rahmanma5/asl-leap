@@ -57,7 +57,15 @@ class SampleListener(Leap.Listener):
                 arm.elbow_position)
 
             # Get fingers
+            fingerList = []
             for finger in hand.fingers:
+                boneList = []
+                boneList.append(finger.bone(0).prev_joint)
+                boneList.append(finger.bone(1).prev_joint)
+                boneList.append(finger.bone(2).prev_joint)
+                boneList.append(finger.bone(3).prev_joint)
+                boneList.append(finger.bone(4).next_joint)
+                fingerList.append(boneList)
                 print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
                     self.finger_names[finger.type],
                     finger.id,
@@ -74,9 +82,29 @@ class SampleListener(Leap.Listener):
                         bone.next_joint,
                         bone.direction)
 
+            handAnalysis(hand,fingerList)
+
 
         if not frame.hands.is_empty:
             print ""
+
+def handAnalysis(hand,fingerList):
+    if hand.grab_strength > 0.9:
+        print "Could be A"
+
+    thumbDirectionProximal = hand.fingers[0].bone(1).direction
+    thumbDirectionInt = hand.fingers[0].bone(2).direction
+    thumbDirectionDistal = hand.fingers[0].bone(3).direction
+    diff = thumbDirectionProximal[0] - thumbDirectionDistal[0]
+    if thumbDirectionInt[1] > 0.18 and hand.grab_strength < 0.2:
+        print "Could be B"
+
+    isC = True
+    for x in range(1,3):
+        if fingerList[x][1][1] < fingerList[x+1][1][1]+10:
+            isC = False
+    if isC:
+        print "Could be a C"
 
 def main():
     # Create a sample listener and controller
