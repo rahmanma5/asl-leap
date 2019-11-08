@@ -144,7 +144,7 @@ def logHandData(hand):
                 for k in range(0,3):
                     temp.append(str(currentFinger[i][j][k]))
     #print(temp)
-    with open('CsaveData2', 'a+') as myfile:
+    with open('saveData', 'a+') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(temp)
 
