@@ -11,7 +11,7 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x64'))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x86'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 
@@ -144,7 +144,7 @@ def logHandData(hand):
                 for k in range(0,3):
                     temp.append(str(currentFinger[i][j][k]))
     #print(temp)
-    with open('saveData', 'a+') as myfile:
+    with open('CsaveData2', 'a+') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(temp)
 
