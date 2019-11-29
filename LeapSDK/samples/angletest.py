@@ -11,7 +11,7 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, '../lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x86'))
+lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x64'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 
@@ -37,33 +37,33 @@ class SampleListener(Leap.Listener):
         # Get the most recent frame and report some basic information
         frame = controller.frame()
 
-        print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
-              frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
+        # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
+        #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
 
         # Get hands
         for hand in frame.hands:
 
             handType = "Left hand" if hand.is_left else "Right hand"
 
-            print "  %s, id %d, position: %s" % (
-                handType, hand.id, hand.palm_position)
+            # print "  %s, id %d, position: %s" % (
+            #     handType, hand.id, hand.palm_position)
 
             # Get the hand's normal vector and direction
             normal = hand.palm_normal
             direction = hand.direction
 
             # Calculate the hand's pitch, roll, and yaw angles
-            print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
-                direction.pitch * Leap.RAD_TO_DEG,
-                normal.roll * Leap.RAD_TO_DEG,
-                direction.yaw * Leap.RAD_TO_DEG)
+            # print "  pitch: %f degrees, roll: %f degrees, yaw: %f degrees" % (
+            #     direction.pitch * Leap.RAD_TO_DEG,
+            #     normal.roll * Leap.RAD_TO_DEG,
+            #     direction.yaw * Leap.RAD_TO_DEG)
 
             # Get arm bone
             arm = hand.arm
-            print "  Arm direction: %s, wrist position: %s, elbow position: %s" % (
-                arm.direction,
-                arm.wrist_position,
-                arm.elbow_position)
+            # print "  Arm direction: %s, wrist position: %s, elbow position: %s" % (
+            #     arm.direction,
+            #     arm.wrist_position,
+            #     arm.elbow_position)
 
             # Get fingers
             fingerList = []
@@ -77,21 +77,21 @@ class SampleListener(Leap.Listener):
                 boneList.append(finger.bone(3).prev_joint)
                 boneList.append(finger.bone(4).next_joint)
                 fingerList.append(boneList)
-                print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
-                    self.finger_names[finger.type],
-                    finger.id,
-                    finger.length,
-                    finger.width)
+                # print "    %s finger, id: %d, length: %fmm, width: %fmm" % (
+                #     self.finger_names[finger.type],
+                #     finger.id,
+                #     finger.length,
+                #     finger.width)
 
                 # Get bones
                 for b in range(0, 4):
                     boneCapture = []
                     bone = finger.bone(b)
-                    print "      Bone: %s, start: %s, end: %s, direction: %s" % (
-                        self.bone_names[bone.type],
-                        bone.prev_joint,
-                        bone.next_joint,
-                        bone.direction)
+                    # print "      Bone: %s, start: %s, end: %s, direction: %s" % (
+                    #     self.bone_names[bone.type],
+                    #     bone.prev_joint,
+                    #     bone.next_joint,
+                    #     bone.direction)
                     boneCapture.append(self.bone_names[bone.type])
                     boneCapture.append(bone.prev_joint)
                     boneCapture.append(bone.next_joint)
@@ -99,11 +99,19 @@ class SampleListener(Leap.Listener):
                     fingerCapture.append(boneCapture)
                 handCapture.append(fingerCapture)
 
+            handAngles = logHandData(handCapture)
+            indexAngle = handAngles[0] if handAngles[0] > 0 and handAngles[0] < 180 else 0
+            middleAngle = handAngles[1] if handAngles[1] > 0 and handAngles[1] < 180 else 0
+            ringAngle = handAngles[2] if handAngles[2] > 0 and handAngles[2] < 180 else 0
+            thumbAngle = handAngles[3] if handAngles[3] > 0 and handAngles[3] < 180 else 0
+
             if hand.grab_strength > 0.9:
-                print "Could be A"
+                if thumbAngle > 35:
+                    print "Could be E"
+                else:
+                    print "Could be A"
 
             
-
 
             thumbDirectionProximal = hand.fingers[0].bone(1).direction
             thumbDirectionInt = hand.fingers[0].bone(2).direction
@@ -111,7 +119,11 @@ class SampleListener(Leap.Listener):
             diff = thumbDirectionProximal[0] - thumbDirectionDistal[0]
 
             if thumbDirectionInt[1] > 0.18 and hand.grab_strength < 0.2:
-                print "Could be B"
+                compareIndex = (middleAngle + ringAngle) / 2.0
+                if indexAngle-compareIndex > 10:
+                    print "Could be F"
+                else:
+                    print "Could be B"
 
             
             #print "It be ", intermediateList[0][1]
@@ -120,15 +132,19 @@ class SampleListener(Leap.Listener):
                 if fingerList[x][1][1] < fingerList[x+1][1][1]+10:
                     isC = False
             if isC:
-                print "Could be a C"
+                compareIndex = (middleAngle + ringAngle) / 2.0
+                if abs(indexAngle-compareIndex) > 20:
+                    print "Could be D"
+                else:
+                    print "Could be a C"
 
 
             # FINGERS:
             # 0 - thumb [x,y,z]
             # 4 - pinky [x,y,z]
-            print "", fingerList[0][0]
+            #print "", fingerList[0][0]
 
-            logHandData(handCapture)
+            
             
 
         if not frame.hands.is_empty:
@@ -144,12 +160,32 @@ def logHandData(hand):
                 for k in range(0,3):
                     temp.append(str(currentFinger[i][j][k]))
     #print(temp)
-    joint1 = [float(temp[51]),float(temp[52]),float(temp[53])]
+    joint1 = [float(temp[44]),float(temp[45]),float(temp[46])]
     joint2 = [float(temp[54]),float(temp[55]),float(temp[56])]
-    joint3 = [float(temp[64]),float(temp[65]),float(temp[66])]
+    joint3 = [float(temp[71]),float(temp[72]),float(temp[73])]
 
-    print getAngle(joint1,joint2,joint3)
-    return
+    joint4 = [float(temp[84]),float(temp[85]),float(temp[86])]
+    joint5 = [float(temp[94]),float(temp[95]),float(temp[96])]
+    joint6 = [float(temp[111]),float(temp[112]),float(temp[113])]
+
+    joint7 = [float(temp[124]),float(temp[125]),float(temp[126])]
+    joint8 = [float(temp[134]),float(temp[135]),float(temp[136])]
+    joint9 = [float(temp[151]),float(temp[152]),float(temp[153])]
+
+    thumb1 = [float(temp[4]),float(temp[5]),float(temp[6])]
+    thumb2 = [float(temp[14]),float(temp[15]),float(temp[16])]
+    thumb3 = [float(temp[31]),float(temp[32]),float(temp[33])]
+
+    indexAngle = getAngle(joint1,joint2,joint3)
+    middleAngle = getAngle(joint4,joint5,joint6)
+    ringAngle = getAngle(joint7,joint8,joint9)
+    thumbAngle = getAngle(thumb1,thumb2,thumb3)
+    print "Index: ", indexAngle
+    print "Middle: ",middleAngle
+    print "Ring: ",ringAngle
+    print "Thumb: ",thumbAngle
+
+    return [indexAngle,middleAngle,ringAngle,thumbAngle]
 
 def getAngle(a,b,c):
     ab = [b[0]-a[0],b[1]-a[1],b[2]-a[2]]

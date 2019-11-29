@@ -36,8 +36,8 @@ class SampleListener(Leap.Listener):
 
             handType = "Left hand" if hand.is_left else "Right hand"
 
-            print "  %s, id %d, position: %s" % (
-                handType, hand.id, hand.palm_position)
+            print "  %s, id %d, position: %s, grab strength: %s" % (
+                handType, hand.id, hand.palm_position, hand.grab_strength)
 
             # Get the hand's normal vector and direction
             normal = hand.palm_normal
