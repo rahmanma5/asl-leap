@@ -99,7 +99,7 @@ def logHandData(hand,aux):
     for x in aux:
         temp.append(x)
     #print len(temp) 
-    with open('YsaveData', 'a+') as myfile:
+    with open('saveData', 'a+') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(temp)
 
