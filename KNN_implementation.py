@@ -41,7 +41,7 @@ y = data.copy().select_dtypes(include=['category'])
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=1)
 
 # generating model and training. tentatively using 5 as n_neighbors
-knn = KNeighborsClassifier(n_neighbors=5, metric='euclidean')
+knn = KNeighborsClassifier(n_neighbors=8, metric='euclidean')
 knn.fit(X_train, np.ravel(y_train,order='C'))
 
 # predicted value
@@ -77,6 +77,7 @@ class SampleListener(Leap.Listener):
     def on_frame(self, controller):
         # Get the most recent frame and report some basic information
         frame = controller.frame()
+        print frame
 
         # print "Frame id: %d, timestamp: %d, hands: %d, fingers: %d" % (
         #       frame.id, frame.timestamp, len(frame.hands), len(frame.fingers))
@@ -140,30 +141,34 @@ class SampleListener(Leap.Listener):
                     fingerCapture.append(boneCapture)
                 handCapture.append(fingerCapture)
 
-            handAngles = logHandData(handCapture)
-            indexAngle = handAngles[0] if handAngles[0] > 0 and handAngles[0] < 180 else 0
-            middleAngle = handAngles[1] if handAngles[1] > 0 and handAngles[1] < 180 else 0
-            ringAngle = handAngles[2] if handAngles[2] > 0 and handAngles[2] < 180 else 0
-            thumbAngle = handAngles[3] if handAngles[3] > 0 and handAngles[3] < 180 else 0
+            handAngles = getHandAngles(handCapture)
+            thumbAngle = handAngles[0] if handAngles[0] > 0 and handAngles[0] < 180 else 0
+            indexAngle = handAngles[1] if handAngles[1] > 0 and handAngles[1] < 180 else 0
+            middleAngle = handAngles[2] if handAngles[2] > 0 and handAngles[2] < 180 else 0
+            ringAngle = handAngles[3] if handAngles[3] > 0 and handAngles[3] < 180 else 0
+            pinkyAngle = handAngles[4] if handAngles[4] > 0 and handAngles[4] < 180 else 0
 
-            temp = []
-            for i in range(0,5):
-                for j in range(0,4):
-                    for k in range(1,4):
-                        for l in range(0,3):
-                            temp.append(handCapture[i][j][k][l])
+            # temp = []
+            # for i in range(0,5):
+            #     for j in range(0,4):
+            #         for k in range(1,4):
+            #             for l in range(0,3):
+            #                 temp.append(handCapture[i][j][k][l])
 
-            pitch = direction.pitch * Leap.RAD_TO_DEG
-            roll = normal.roll * Leap.RAD_TO_DEG
-            yaw = direction.yaw * Leap.RAD_TO_DEG
+            # pitch = direction.pitch * Leap.RAD_TO_DEG
+            # roll = normal.roll * Leap.RAD_TO_DEG
+            # yaw = direction.yaw * Leap.RAD_TO_DEG
 
-            auxiliary = [hand.palm_position[0],hand.palm_position[1],hand.palm_position[2],pitch,roll,yaw]
-            for x in auxiliary:
-                temp.append(x)
+            # auxiliary = [hand.palm_position[0],hand.palm_position[1],hand.palm_position[2],pitch,roll,yaw]
+            # for x in auxiliary:
+            #     temp.append(x)
 
             #samplePrediction = [-14.9686536789,136.0546875,66.1265411377,-14.9686536789,136.0546875,66.1265411377,0.0,0.0,0.0,-14.9686536789,136.0546875,66.1265411377,-33.8622169495,124.423171997,24.8965930939,0.403531074524,0.24842736125,0.880594432354,-33.8622169495,124.423171997,24.8965930939,-29.7998561859,117.189155579,-9.96576023102,-0.113359838724,0.201864629984,0.972831070423,-29.7998561859,117.189155579,-9.96576023102,-15.952755928,114.50025177,-30.1176795959,-0.562931060791,0.109312951565,0.819243133068,-15.3825874329,157.679107666,60.9750175476,-50.7743492126,161.451721191,1.85731267929,0.512885689735,-0.0546714663506,0.856714248657,-50.7743492126,161.451721191,1.85731267929,-70.1160354614,166.011260986,-38.690410614,0.428336292505,-0.100974462926,0.897960007191,-70.1160354614,166.011260986,-38.690410614,-79.1194229126,162.629898071,-62.2037391663,0.354406058788,0.133102729917,0.925570070744,-79.1194229126,162.629898071,-62.2037391663,-84.766998291,158.412063599,-78.7202301025,0.3144929111,0.234875842929,0.91974323988,-6.70283842087,162.946334839,55.4699363708,-32.581905365,169.327560425,-4.2952041626,0.395465999842,-0.097513474524,0.913289546967,-32.581905365,169.327560425,-4.2952041626,-39.2041053772,129.27053833,-34.5952453613,0.130716592073,0.790691554546,0.598097026348,-39.2041053772,129.27053833,-34.5952453613,-27.9437980652,107.58543396,-17.3833675385,-0.37675127387,0.725547790527,-0.575881004333,-27.9437980652,107.58543396,-17.3833675385,-19.7132358551,105.473457336,0.446611762047,-0.416711568832,0.106928922236,-0.90272796154,3.37654089928,165.577194214,50.5437850952,-11.7187108994,173.768630981,-5.64363479614,0.256924450397,-0.1394200176,0.956322014332,-11.7187108994,173.768630981,-5.64363479614,-14.6286497116,131.718612671,-26.3460712433,0.0619660355151,0.895439088345,0.44085046649,-14.6286497116,131.718612671,-26.3460712433,-7.51458263397,114.45500946,-4.00550079346,-0.244335085154,0.592924356461,-0.767294585705,-7.51458263397,114.45500946,-4.00550079346,-2.57665753365,116.747093201,14.862537384,-0.251451194286,-0.116718493402,-0.960806488991]
-            temp = np.reshape(temp,(1,-1))
-            prediction = knn.predict(temp)
+            #temp = np.reshape(temp,(1,-1))
+            val = [indexAngle,middleAngle,ringAngle,thumbAngle,pitch,roll,yaw]
+            val = np.reshape(val, (1,-1))
+            prediction = knn.predict(val)
+            print hand.pinch_strength
             print prediction
             
 
@@ -179,9 +184,9 @@ class SampleListener(Leap.Listener):
         if not frame.hands.is_empty:
             print ""
 
-def logHandData(hand):
+def getHandAngles(hand):
     temp = []
-    for x in range(0,4):
+    for x in range(0,5):
         for i in range(0,4):
             currentFinger = hand[x]
             temp.append(str(currentFinger[i][0]))
@@ -189,32 +194,40 @@ def logHandData(hand):
                 for k in range(0,3):
                     temp.append(str(currentFinger[i][j][k]))
     #print(temp)
-    joint1 = [float(temp[44]),float(temp[45]),float(temp[46])]
-    joint2 = [float(temp[54]),float(temp[55]),float(temp[56])]
-    joint3 = [float(temp[71]),float(temp[72]),float(temp[73])]
+    index_metacarpal_end = [float(temp[44]),float(temp[45]),float(temp[46])]
+    index_proximal_end = [float(temp[54]),float(temp[55]),float(temp[56])]
+    index_intermediate_end = [float(temp[71]),float(temp[72]),float(temp[73])]
 
-    joint4 = [float(temp[84]),float(temp[85]),float(temp[86])]
-    joint5 = [float(temp[94]),float(temp[95]),float(temp[96])]
-    joint6 = [float(temp[111]),float(temp[112]),float(temp[113])]
+    middle_metacarpal_end = [float(temp[84]),float(temp[85]),float(temp[86])]
+    middle_proximal_end = [float(temp[94]),float(temp[95]),float(temp[96])]
+    middle_intermediate_end = [float(temp[111]),float(temp[112]),float(temp[113])]
 
-    joint7 = [float(temp[124]),float(temp[125]),float(temp[126])]
-    joint8 = [float(temp[134]),float(temp[135]),float(temp[136])]
-    joint9 = [float(temp[151]),float(temp[152]),float(temp[153])]
+    ring_metacarpal_end = [float(temp[124]),float(temp[125]),float(temp[126])]
+    ring_proximal_end = [float(temp[134]),float(temp[135]),float(temp[136])]
+    ring_intermediate_end = [float(temp[151]),float(temp[152]),float(temp[153])]
 
-    thumb1 = [float(temp[4]),float(temp[5]),float(temp[6])]
-    thumb2 = [float(temp[14]),float(temp[15]),float(temp[16])]
-    thumb3 = [float(temp[31]),float(temp[32]),float(temp[33])]
+    pinky_metacarpal_end = [float(temp[164]),float(temp[165]),float(temp[166])]
+    pinky_proximal_end = [float(temp[174]),float(temp[175]),float(temp[176])]
+    pinky_intermediate_end = [float(temp[184]),float(temp[185]),float(temp[186])]
 
-    indexAngle = getAngle(joint1,joint2,joint3)
-    middleAngle = getAngle(joint4,joint5,joint6)
-    ringAngle = getAngle(joint7,joint8,joint9)
-    thumbAngle = getAngle(thumb1,thumb2,thumb3)
+    thumb_metacarpal_end = [float(temp[4]),float(temp[5]),float(temp[6])]
+    thumb_proximal_end = [float(temp[14]),float(temp[15]),float(temp[16])]
+    thumb_intermediate_end = [float(temp[31]),float(temp[32]),float(temp[33])]
+
+    thumbAngle = getAngle(thumb_metacarpal_end,thumb_proximal_end,thumb_intermediate_end)
+    indexAngle = getAngle(index_metacarpal_end,index_proximal_end,index_intermediate_end)
+    middleAngle = getAngle(middle_metacarpal_end,middle_proximal_end,middle_intermediate_end)
+    ringAngle = getAngle(ring_metacarpal_end,ring_proximal_end,ring_intermediate_end)
+    pinkyAngle = getAngle(pinky_metacarpal_end,pinky_proximal_end,pinky_intermediate_end)
+    
+    print "Thumb: ",thumbAngle
     print "Index: ", indexAngle
     print "Middle: ",middleAngle
     print "Ring: ",ringAngle
-    print "Thumb: ",thumbAngle
+    print "Pinky: ", pinkyAngle
+    
 
-    return [indexAngle,middleAngle,ringAngle,thumbAngle]
+    return [thumbAngle,indexAngle,middleAngle,ringAngle,pinkyAngle]
 
 def getAngle(a,b,c):
     ab = [b[0]-a[0],b[1]-a[1],b[2]-a[2]]
