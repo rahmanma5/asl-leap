@@ -15,6 +15,7 @@ lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x64'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 
+frameCounter = 1000
 
 class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
@@ -34,6 +35,7 @@ class SampleListener(Leap.Listener):
         print "Exited"
 
     def on_frame(self, controller):
+        global frameCounter
         # Get the most recent frame and report some basic information
         frame = controller.frame()
 
@@ -104,39 +106,44 @@ class SampleListener(Leap.Listener):
             middleAngle = handAngles[1] if handAngles[1] > 0 and handAngles[1] < 180 else 0
             ringAngle = handAngles[2] if handAngles[2] > 0 and handAngles[2] < 180 else 0
             thumbAngle = handAngles[3] if handAngles[3] > 0 and handAngles[3] < 180 else 0
+            if frameCounter > 0:
+                writeToFile(indexAngle,middleAngle,ringAngle,thumbAngle)
+                frameCounter -= 1
+                print frameCounter
+                
 
-            if hand.grab_strength > 0.9:
-                if thumbAngle > 35:
-                    print "Could be E"
-                else:
-                    print "Could be A"
-
-            
-
-            thumbDirectionProximal = hand.fingers[0].bone(1).direction
-            thumbDirectionInt = hand.fingers[0].bone(2).direction
-            thumbDirectionDistal = hand.fingers[0].bone(3).direction
-            diff = thumbDirectionProximal[0] - thumbDirectionDistal[0]
-
-            if thumbDirectionInt[1] > 0.18 and hand.grab_strength < 0.2:
-                compareIndex = (middleAngle + ringAngle) / 2.0
-                if indexAngle-compareIndex > 10:
-                    print "Could be F"
-                else:
-                    print "Could be B"
+            # if hand.grab_strength > 0.9:
+            #     if thumbAngle > 35:
+            #         print "Could be E"
+            #     else:
+            #         print "Could be A"
 
             
-            #print "It be ", intermediateList[0][1]
-            isC = True
-            for x in range(1,3):
-                if fingerList[x][1][1] < fingerList[x+1][1][1]+10:
-                    isC = False
-            if isC:
-                compareIndex = (middleAngle + ringAngle) / 2.0
-                if abs(indexAngle-compareIndex) > 20:
-                    print "Could be D"
-                else:
-                    print "Could be a C"
+
+            # thumbDirectionProximal = hand.fingers[0].bone(1).direction
+            # thumbDirectionInt = hand.fingers[0].bone(2).direction
+            # thumbDirectionDistal = hand.fingers[0].bone(3).direction
+            # diff = thumbDirectionProximal[0] - thumbDirectionDistal[0]
+
+            # if thumbDirectionInt[1] > 0.18 and hand.grab_strength < 0.2:
+            #     compareIndex = (middleAngle + ringAngle) / 2.0
+            #     if indexAngle-compareIndex > 10:
+            #         print "Could be F"
+            #     else:
+            #         print "Could be B"
+
+            
+            # #print "It be ", intermediateList[0][1]
+            # isC = True
+            # for x in range(1,3):
+            #     if fingerList[x][1][1] < fingerList[x+1][1][1]+10:
+            #         isC = False
+            # if isC:
+            #     compareIndex = (middleAngle + ringAngle) / 2.0
+            #     if abs(indexAngle-compareIndex) > 20:
+            #         print "Could be D"
+            #     else:
+            #         print "Could be a C"
 
 
             # FINGERS:
@@ -149,6 +156,13 @@ class SampleListener(Leap.Listener):
 
         if not frame.hands.is_empty:
             print ""
+
+def writeToFile(index,middle,ring,thumb):
+    angles = [index,middle,ring,thumb]
+    with open('saveData', 'a+') as myfile:
+        wr = csv.writer(myfile)
+        wr.writerow(angles)
+
 
 def logHandData(hand):
     temp = []
