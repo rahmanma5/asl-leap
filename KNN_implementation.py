@@ -57,7 +57,7 @@ print '\nClassification report:\n', classification_report(y_test, y_pred)
 class SampleListener(Leap.Listener):
 
 
-
+    cache = []
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
 
@@ -170,6 +170,12 @@ class SampleListener(Leap.Listener):
             prediction = knn.predict(val)
             print hand.pinch_strength
             print prediction
+
+            # Todo:
+            # cache.add([val,prediction,velocity])
+            # if cache > 300 pop(0)
+            # hard code 2 dynamic letters
+
             
 
 
