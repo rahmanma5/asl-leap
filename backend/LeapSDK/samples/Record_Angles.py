@@ -134,7 +134,7 @@ def writeToFile(thumb,index,middle,ring,pinky,directions):
     angles = [thumb,index,middle,ring,pinky]
     for i in directions:
         angles.append(i)
-    with open('EsaveData', 'a+') as myfile:
+    with open('YsaveData', 'a+') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(angles)
 
