@@ -11,7 +11,7 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, './LeapSDK/lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, './LEAPSDK/lib/x86'))
+lib_dir = os.path.abspath(os.path.join(src_dir, './LEAPSDK/lib/x64'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 import pandas as pd
@@ -60,6 +60,7 @@ class SampleListener(Leap.Listener):
 
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
+    cache = []
 
     def on_init(self, controller):
         print "Initialized"
@@ -170,7 +171,6 @@ class SampleListener(Leap.Listener):
             temp = np.reshape(temp,(1,-1))
             prediction = knn.predict(temp)
 
-            cache = []
             # if prediction == ["J"] or prediction == ["Z"]:
             #     if len(cache) < 300:
             #         cache.append(prediction)
@@ -182,11 +182,17 @@ class SampleListener(Leap.Listener):
             stillHand = False
             if abs(velocityX) < 12 and abs(velocityY) < 12 and abs(velocityY) < 12:
                 stillHand = True
-            if not stillHand and (prediction == ["J"] or prediction == ["Z"]):
-                print("J/Z in progress")
-                print(velocity)
+            # if not stillHand and (prediction == ["J"] or prediction == ["Z"]):
+            #     print("J/Z in progress")
+            #     print(velocity)
+            # else:
+            #     print prediction
+            if not stillHand or len(self.cache) < 40:
+                self.cache.append(prediction[0])
             else:
-                print prediction
+                mostOccurred = getMostOccurrences(self.cache)
+                print("Prediction being made: " + mostOccurred)
+                self.cache = []
             
 
 
@@ -198,8 +204,26 @@ class SampleListener(Leap.Listener):
             
             
 
-        if not frame.hands.is_empty:
-            print ""
+        #if not frame.hands.is_empty:
+            #print ""
+
+def getMostOccurrences(letters):
+    d = {}
+    for char in letters:
+        if char not in d:
+            d[char] = 0
+        else:
+            d[char] += 1
+
+    maxOccurrences = 0
+    maxChar = None
+    for char in d:
+        if d.get(char) > maxOccurrences:
+            maxOccurrences = d.get(char)
+            maxChar = char
+
+    return maxChar
+
 
 def logHandData(hand):
     temp = []
@@ -231,10 +255,10 @@ def logHandData(hand):
     middleAngle = getAngle(joint4,joint5,joint6)
     ringAngle = getAngle(joint7,joint8,joint9)
     thumbAngle = getAngle(thumb1,thumb2,thumb3)
-    print "Index: ", indexAngle
-    print "Middle: ",middleAngle
-    print "Ring: ",ringAngle
-    print "Thumb: ",thumbAngle
+    #print "Index: ", indexAngle
+    #print "Middle: ",middleAngle
+    #print "Ring: ",ringAngle
+    #print "Thumb: ",thumbAngle
 
     return [indexAngle,middleAngle,ringAngle,thumbAngle]
 
