@@ -11,7 +11,7 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, './LeapSDK/lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, './LEAPSDK/lib/x86'))
+lib_dir = os.path.abspath(os.path.join(src_dir, './LEAPSDK/lib/x64'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 import pandas as pd
@@ -20,9 +20,24 @@ from sklearn.metrics import classification_report
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.factory import Factory
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.screenmanager import Screen
+from kivy.uix.image import Image as CoreImage
+from kivy.graphics.texture import Texture
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
+from kivy.clock import Clock
+from kivy.graphics.texture import Texture
+
+import os
+import io
 
 files = os.listdir(".")
-print files
+#print files
 # creating one datatable from all csvs....
 allTables = []
 for file in files:
@@ -53,6 +68,27 @@ y_pred = knn.predict(X_test)
 # output report
 # print testy
 print '\nClassification report:\n', classification_report(y_test, y_pred)
+
+kv = '''
+BoxLayout:
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        id: buttons
+    ScreenManager:
+        id: sm
+    Label:
+        id: text_box
+        text: 'teste'
+    
+'''
+class GUI(App):
+
+    def build(self):
+       
+        layout = Builder.load_string(kv)
+        return layout
 
 class SampleListener(Leap.Listener):
 
@@ -168,21 +204,32 @@ class SampleListener(Leap.Listener):
             #     temp.append(x)
 
             #samplePrediction = [-14.9686536789,136.0546875,66.1265411377,-14.9686536789,136.0546875,66.1265411377,0.0,0.0,0.0,-14.9686536789,136.0546875,66.1265411377,-33.8622169495,124.423171997,24.8965930939,0.403531074524,0.24842736125,0.880594432354,-33.8622169495,124.423171997,24.8965930939,-29.7998561859,117.189155579,-9.96576023102,-0.113359838724,0.201864629984,0.972831070423,-29.7998561859,117.189155579,-9.96576023102,-15.952755928,114.50025177,-30.1176795959,-0.562931060791,0.109312951565,0.819243133068,-15.3825874329,157.679107666,60.9750175476,-50.7743492126,161.451721191,1.85731267929,0.512885689735,-0.0546714663506,0.856714248657,-50.7743492126,161.451721191,1.85731267929,-70.1160354614,166.011260986,-38.690410614,0.428336292505,-0.100974462926,0.897960007191,-70.1160354614,166.011260986,-38.690410614,-79.1194229126,162.629898071,-62.2037391663,0.354406058788,0.133102729917,0.925570070744,-79.1194229126,162.629898071,-62.2037391663,-84.766998291,158.412063599,-78.7202301025,0.3144929111,0.234875842929,0.91974323988,-6.70283842087,162.946334839,55.4699363708,-32.581905365,169.327560425,-4.2952041626,0.395465999842,-0.097513474524,0.913289546967,-32.581905365,169.327560425,-4.2952041626,-39.2041053772,129.27053833,-34.5952453613,0.130716592073,0.790691554546,0.598097026348,-39.2041053772,129.27053833,-34.5952453613,-27.9437980652,107.58543396,-17.3833675385,-0.37675127387,0.725547790527,-0.575881004333,-27.9437980652,107.58543396,-17.3833675385,-19.7132358551,105.473457336,0.446611762047,-0.416711568832,0.106928922236,-0.90272796154,3.37654089928,165.577194214,50.5437850952,-11.7187108994,173.768630981,-5.64363479614,0.256924450397,-0.1394200176,0.956322014332,-11.7187108994,173.768630981,-5.64363479614,-14.6286497116,131.718612671,-26.3460712433,0.0619660355151,0.895439088345,0.44085046649,-14.6286497116,131.718612671,-26.3460712433,-7.51458263397,114.45500946,-4.00550079346,-0.244335085154,0.592924356461,-0.767294585705,-7.51458263397,114.45500946,-4.00550079346,-2.57665753365,116.747093201,14.862537384,-0.251451194286,-0.116718493402,-0.960806488991]
-            #temp = np.reshape(temp,(1,-1))
-            val = [thumbAngle,indexAngle,middleAngle,ringAngle,pinkyAngle]
-            for i in directions:
-                val.append(i)
+            temp = np.reshape(temp,(1,-1))
+            prediction = knn.predict(temp)
 
-            val = np.reshape(val, (1,-1))
-            prediction = knn.predict(val)
-            print hand.pinch_strength
-            print prediction
+            # if prediction == ["J"] or prediction == ["Z"]:
+            #     if len(cache) < 300:
+            #         cache.append(prediction)
+            #     else:
 
-            # Todo:
-            # cache.add([val,prediction,velocity])
-            # if cache > 300 pop(0)
-            # hard code 2 dynamic letters
-
+            velocityX = velocity[0]
+            velocityY = velocity[1]
+            velocityZ = velocity[2]
+            stillHand = False
+            if abs(velocityX) < 12 and abs(velocityY) < 12 and abs(velocityY) < 12:
+                stillHand = True
+            # if not stillHand and (prediction == ["J"] or prediction == ["Z"]):
+            #     print("J/Z in progress")
+            #     print(velocity)
+            # else:
+            #     print prediction
+            if not stillHand or len(self.cache) < 40:
+                self.cache.append(prediction[0])
+            else:
+                mostOccurred = getMostOccurrences(self.cache)
+                App.get_running_app().root.ids.text_box.text = mostOccurred
+                print("Prediction being made: " + mostOccurred)
+                self.cache = []
             
 
 
@@ -279,7 +326,8 @@ def main():
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     print getAngle([1,0,0],[0,0,0],[0,1,0])
-
+    
+    GUI().run()
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."
     try:
