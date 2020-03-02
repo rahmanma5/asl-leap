@@ -15,7 +15,7 @@ lib_dir = os.path.abspath(os.path.join(src_dir, '../lib/x86'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 
-frameCounter = 1000
+frameCounter = 2000
 
 class SampleListener(Leap.Listener):
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
@@ -102,7 +102,6 @@ def logHandData(hand,aux):
     with open('ZsaveData', 'a+') as myfile:
         wr = csv.writer(myfile)
         wr.writerow(temp)
-
 
     return
 

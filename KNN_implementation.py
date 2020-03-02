@@ -11,7 +11,7 @@ import os, sys, inspect
 src_dir = os.path.dirname(inspect.getfile(inspect.currentframe()))
 lib_dir = os.path.abspath(os.path.join(src_dir, './LeapSDK/lib'))
 sys.path.insert(0, lib_dir)
-lib_dir = os.path.abspath(os.path.join(src_dir, './LEAPSDK/lib/x64'))
+lib_dir = os.path.abspath(os.path.join(src_dir, './LEAPSDK/lib/x86'))
 sys.path.insert(0, lib_dir)
 import Leap, csv
 import pandas as pd
