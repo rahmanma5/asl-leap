@@ -20,9 +20,24 @@ from sklearn.metrics import classification_report
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import train_test_split
 
+from kivy.app import App
+from kivy.lang import Builder
+from kivy.factory import Factory
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.screenmanager import Screen
+from kivy.uix.image import Image as CoreImage
+from kivy.graphics.texture import Texture
+from kivy.uix.boxlayout import BoxLayout
+from kivy.uix.image import Image
+from kivy.clock import Clock
+from kivy.graphics.texture import Texture
+
+import os
+import io
 
 files = os.listdir(".")
-print files
+# print files
 # creating one datatable from all csvs....
 allTables = []
 for file in files:
@@ -53,6 +68,27 @@ y_pred = knn.predict(X_test)
 # output report
 # print testy
 print '\nClassification report:\n', classification_report(y_test, y_pred)
+
+kv = '''
+BoxLayout:
+    orientation: 'vertical'
+    BoxLayout:
+        size_hint_y: None
+        height: 30
+        id: buttons
+    ScreenManager:
+        id: sm
+    Label:
+        id: text_box
+        text: 'Sign a letter'
+    
+'''
+class GUI(App):
+
+    def build(self):
+       
+        layout = Builder.load_string(kv)
+        return layout
 
 class SampleListener(Leap.Listener):
 
@@ -191,6 +227,7 @@ class SampleListener(Leap.Listener):
                 self.cache.append(prediction[0])
             else:
                 mostOccurred = getMostOccurrences(self.cache)
+                App.get_running_app().root.ids.text_box.text = mostOccurred
                 print("Prediction being made: " + mostOccurred)
                 self.cache = []
             
@@ -285,6 +322,7 @@ def main():
     controller.add_listener(listener)
     print getAngle([1,0,0],[0,0,0],[0,1,0])
 
+    GUI().run()
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."
     try:
