@@ -25,13 +25,14 @@ from kivy.lang import Builder
 from kivy.factory import Factory
 from kivy.uix.label import Label
 from kivy.uix.button import Button
-from kivy.uix.screenmanager import Screen
+from kivy.uix.screenmanager import Screen, ScreenManager, NoTransition, FadeTransition
 from kivy.uix.image import Image as CoreImage
 from kivy.graphics.texture import Texture
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.image import Image
 from kivy.clock import Clock
 from kivy.graphics.texture import Texture
+from kivy.properties import ObjectProperty, NumericProperty
 
 import os
 import io
@@ -80,20 +81,43 @@ BoxLayout:
         id: sm
     Label:
         id: text_box
-        text: 'Sign a letter'
+        text: ''
+        markup: 'true'
     
 '''
+
+class MainScreen(Screen):
+    pass
+
+class RevengeScreen(Screen):
+    def on_enter(self):
+        with open('rots.txt') as f:
+            read_in = f.read()
+            tester.set_sentence(read_in)
+        f.closed
+
+class NewHopeScreen(Screen):
+    def on_enter(self):
+        with open('new_hope.txt') as f:
+            read_in = f.read()
+            tester.set_sentence(read_in)
+        f.closed
+
+class ScreenManagement(ScreenManager):
+    pass
+
+
 class GUI(App):
 
     def build(self):
-       
-        layout = Builder.load_string(kv)
-        return layout
+        m = Builder.load_file("screen_layout.kv")
+        return m
+
 
 class SampleListener(Leap.Listener):
 
-
-
+    
+    
     finger_names = ['Thumb', 'Index', 'Middle', 'Ring', 'Pinky']
     bone_names = ['Metacarpal', 'Proximal', 'Intermediate', 'Distal']
     cache = []
@@ -102,6 +126,7 @@ class SampleListener(Leap.Listener):
         print "Initialized"
 
     def on_connect(self, controller):
+        #self.tester = TestingSoftware()
         print "Connected"
 
     def on_disconnect(self, controller):
@@ -227,7 +252,12 @@ class SampleListener(Leap.Listener):
                 self.cache.append(prediction[0])
             else:
                 mostOccurred = getMostOccurrences(self.cache)
-                App.get_running_app().root.ids.text_box.text = mostOccurred
+                # App.get_running_app().root.ids.text_box.text = mostOccurred
+                tester.checkAnswer(mostOccurred)
+                # print(App.get_running_app().root.current)
+                # temppp = App.get_running_app().root.current
+                # print(App.get_running_app().root.ids.new_hope.ids)
+                # print(App.get_running_app().root.ids[temppp].ids)
                 print("Prediction being made: " + mostOccurred)
                 self.cache = []
             
@@ -313,15 +343,84 @@ def getAngle(a,b,c):
 
     return math.acos(res)*180.0/ 3.141592653589793
 
+class TestingSoftware():
+    desired_letter = 0
+    desired_sentence = ""
+    sentence_array = []
+    current_screen = ""
+    current_index = 0
+    def set_sentence(self,desired_input):
+        print desired_input
+        self.current_screen = App.get_running_app().root.current
+        self.sentence_array = desired_input.splitlines()
+        self.desired_sentence = self.sentence_array[0].strip()
+        self.current_index = 1
+        App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
+        
+    def checkAnswer(self,user_sign):
+        print(self.sentence_array)
+        print(self.current_index)
+        if self.desired_letter >= len(self.desired_sentence):
+            self.desired_letter = 0
+            self.desired_sentence = self.sentence_array[self.current_index].strip()
+            print(self.desired_sentence)
+            print(self.current_index)
+            self.current_index = self.current_index + 1
+            App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
+            return
+        elif self.desired_letter >= len(self.desired_sentence) and self.current_index == len(self.sentence_array):
+            self.desired_letter = 0
+            App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]All finished![/color]"
+            self.desired_sentence = ""
+            return
+        if self.desired_sentence[self.desired_letter] == " " or self.desired_sentence[self.desired_letter] == "." or self.desired_sentence[self.desired_letter] == "":
+            self.desired_letter =  self.desired_letter + 1
+            return
+        if user_sign == self.desired_sentence[self.desired_letter].upper():
+            self.desired_letter =  self.desired_letter + 1
+        green_half = "[color=00ff00]" + self.desired_sentence[0:self.desired_letter] + "[/color]"
+        red_half = "[color=000000]" + self.desired_sentence[self.desired_letter:len(self.desired_sentence)] + "[/color]"
+        App.get_running_app().root.ids[self.current_screen].ids.text_box.text = green_half + red_half
+        if self.desired_letter+1 >= len(self.desired_sentence):
+            print("GOT HERE")
+            print(len(self.sentence_array))
+            if self.desired_sentence[self.desired_letter] == "." and self.current_index < len(self.sentence_array):
+                print("Am I here??")
+                self.desired_letter = 0
+                self.desired_sentence = self.sentence_array[self.current_index].strip()
+                print(self.desired_sentence)
+                print(self.current_index)
+                self.current_index = self.current_index + 1
+                App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
+                return
+            elif self.desired_sentence[self.desired_letter] == "." and self.current_index >= len(self.sentence_array):
+                print("Am I here?")
+                self.desired_letter = 0
+                App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]All finished![/color]"
+                self.desired_sentence = ""
+            
+        if red_half == "[color=000000][/color]" and self.current_index < len(self.sentence_array):
+            self.desired_letter = 0
+            self.desired_sentence = self.sentence_array[self.current_index].strip()
+            self.current_index = self.current_index + 1
+            App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
+        elif red_half == "[color=000000][/color]" and self.current_index == len(self.sentence_array):
+            self.desired_letter = 0
+            App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]All finished![/color]"
+            self.desired_sentence = ""
+
+
+
+
 def main():
     # Create a sample listener and controller
     listener = SampleListener()
     controller = Leap.Controller()
-
+    global tester
+    tester = TestingSoftware()
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     print getAngle([1,0,0],[0,0,0],[0,1,0])
-
     GUI().run()
     # Keep this process running until Enter is pressed
     print "Press Enter to quit..."

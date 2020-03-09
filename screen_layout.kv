@@ -1,0 +1,80 @@
+ScreenManagement:
+    id: managerrr
+    MainScreen:
+        id: main
+    NewHopeScreen:
+        id: new_hope
+    RevengeScreen:
+        id: revenge
+
+<Button>: 
+    font_size: 15
+    size_hint: 0.1, 0.1
+
+<MainScreen>:
+    name: 'main'
+    
+    canvas.before:
+        Color:
+            rgba: .75, .75, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    RelativeLayout:
+        Image:
+            source: 'logo.png'
+            size_hint: [.2,.2]
+            pos_hint: {"x":0, "top":1} 
+        Button:
+            pos_hint: {"center_x":.5, "center_y":.6}
+            on_release: app.root.current = 'revenge'
+            text: 'Revenge of the Sith'
+            color: 1,1,1,1
+            background_color: 1,1,1,1
+        Button:
+            pos_hint: {"center_x":.5, "center_y":.4}
+            on_release: app.root.current = 'new_hope'
+            text: 'A New Hope'
+            color: 1,1,1,1
+            background_color: 1,1,1,1
+
+            
+<NewHopeScreen>:
+    name: 'new_hope'
+    
+    canvas.before:
+        Color:
+            rgba: .75, .75, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            id: buttons
+        Label:
+            id: text_box
+            text: 'abc'
+            markup: 'true'
+
+<RevengeScreen>:
+    name: 'revenge'
+    
+    canvas.before:
+        Color:
+            rgba: .75, .75, 1, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: None
+            height: 30
+            id: buttons
+        Label:
+            id: text_box
+            text: 'abc'
+            markup: 'true'
