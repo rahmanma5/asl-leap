@@ -343,12 +343,15 @@ def getAngle(a,b,c):
 
     return math.acos(res)*180.0/ 3.141592653589793
 
-class TestingSoftware():
+class TestingSoftware(similarSignsDict):
     desired_letter = 0
     desired_sentence = ""
     sentence_array = []
     current_screen = ""
     current_index = 0
+    similarSign = similarSignsDict
+
+
     def set_sentence(self,desired_input):
         print desired_input
         self.current_screen = App.get_running_app().root.current
@@ -376,7 +379,7 @@ class TestingSoftware():
         if self.desired_sentence[self.desired_letter] == " " or self.desired_sentence[self.desired_letter] == "." or self.desired_sentence[self.desired_letter] == "" or self.desired_sentence[self.desired_letter] == "!":
             self.desired_letter =  self.desired_letter + 1
             return
-        if user_sign == self.desired_sentence[self.desired_letter].upper():
+        if user_sign == self.desired_sentence[self.desired_letter].upper() or user_sign in similarSign.get(self.desired_sentence[self.desired_letter].upper()):
             self.desired_letter =  self.desired_letter + 1
         green_half = "[color=00ff00]" + self.desired_sentence[0:self.desired_letter] + "[/color]"
         red_half = "[color=000000]" + self.desired_sentence[self.desired_letter:len(self.desired_sentence)] + "[/color]"
@@ -414,10 +417,22 @@ class TestingSoftware():
 
 def main():
     # Create a sample listener and controller
+
+    # leniency for these letters
+    keys = ["A", "E", "M", "N", "S", "T"]
+    values = []
+    for i in range(0,len(keys)):
+        temp = []
+        for j in range(0,len(keys)):
+            if keys[i] != keys[j]:
+                temp.append(keys[j])
+    similarSignsDict = dict(zip(keys,values))
+
+
     listener = SampleListener()
     controller = Leap.Controller()
     global tester
-    tester = TestingSoftware()
+    tester = TestingSoftware(similarSignsDict)
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     print getAngle([1,0,0],[0,0,0],[0,1,0])
