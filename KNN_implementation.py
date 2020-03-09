@@ -373,7 +373,7 @@ class TestingSoftware():
             App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]All finished![/color]"
             self.desired_sentence = ""
             return
-        if self.desired_sentence[self.desired_letter] == " " or self.desired_sentence[self.desired_letter] == "." or self.desired_sentence[self.desired_letter] == "":
+        if self.desired_sentence[self.desired_letter] == " " or self.desired_sentence[self.desired_letter] == "." or self.desired_sentence[self.desired_letter] == "" or or self.desired_sentence[self.desired_letter] == "!":
             self.desired_letter =  self.desired_letter + 1
             return
         if user_sign == self.desired_sentence[self.desired_letter].upper():
