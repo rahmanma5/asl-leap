@@ -343,7 +343,18 @@ def getAngle(a,b,c):
 
     return math.acos(res)*180.0/ 3.141592653589793
 
-class TestingSoftware(similarSignsDict):
+keys = ["A", "E", "M", "N", "S", "T"]
+values = []
+for i in range(0,len(keys)):
+    temp = []
+    for j in range(0,len(keys)):
+        if keys[i] != keys[j]:
+            temp.append(keys[j])
+similarSignsDict = dict(zip(keys,values))
+
+class TestingSoftware():
+    
+
     desired_letter = 0
     desired_sentence = ""
     sentence_array = []
@@ -427,12 +438,13 @@ def main():
             if keys[i] != keys[j]:
                 temp.append(keys[j])
     similarSignsDict = dict(zip(keys,values))
+    
 
 
     listener = SampleListener()
     controller = Leap.Controller()
     global tester
-    tester = TestingSoftware(similarSignsDict)
+    tester = TestingSoftware()
     # Have the sample listener receive events from the controller
     controller.add_listener(listener)
     print getAngle([1,0,0],[0,0,0],[0,1,0])
