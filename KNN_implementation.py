@@ -36,7 +36,7 @@ from kivy.properties import ObjectProperty, NumericProperty
 
 import os
 import io
-
+#ys.tracebacklimit = 0
 files = os.listdir(".")
 # print files
 # creating one datatable from all csvs....
@@ -352,6 +352,7 @@ for i in range(0,len(keys)):
             temp.append(keys[j])
 similarSignsDict = dict(zip(keys,values))
 
+
 class TestingSoftware():
     
 
@@ -360,11 +361,22 @@ class TestingSoftware():
     sentence_array = []
     current_screen = ""
     current_index = 0
-    similarSign = similarSignsDict
+    similarSign = ["A", "E", "M", "N", "S", "T"]
+    consecutiveWrongSigns = 0
 
+
+    def initialize(self):
+        keys = ["A", "E", "M", "N", "S", "T"]
+        values = []
+        for i in range(0,len(keys)):
+            temp = []
+            for j in range(0,len(keys)):
+                if keys[i] != keys[j]:
+                    temp.append(keys[j])
+        self.similarSign = dict(zip(keys,values))
 
     def set_sentence(self,desired_input):
-        print desired_input
+        #print desired_input
         self.current_screen = App.get_running_app().root.current
         self.sentence_array = desired_input.splitlines()
         self.desired_sentence = self.sentence_array[0].strip()
@@ -372,13 +384,15 @@ class TestingSoftware():
         App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
         
     def checkAnswer(self,user_sign):
-        print(self.sentence_array)
-        print(self.current_index)
+        #print(self.sentence_array)
+        #print(self.current_index)
+        print(self.similarSign)
+        print(self.consecutiveWrongSigns)
         if self.desired_letter >= len(self.desired_sentence):
             self.desired_letter = 0
             self.desired_sentence = self.sentence_array[self.current_index].strip()
-            print(self.desired_sentence)
-            print(self.current_index)
+            #print(self.desired_sentence)
+            #print(self.current_index)
             self.current_index = self.current_index + 1
             App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
             return
@@ -390,20 +404,25 @@ class TestingSoftware():
         if self.desired_sentence[self.desired_letter] == " " or self.desired_sentence[self.desired_letter] == "." or self.desired_sentence[self.desired_letter] == "" or self.desired_sentence[self.desired_letter] == "!":
             self.desired_letter =  self.desired_letter + 1
             return
-        if user_sign == self.desired_sentence[self.desired_letter].upper() or user_sign in similarSign.get(self.desired_sentence[self.desired_letter].upper()):
+        self.consecutiveWrongSigns = self.consecutiveWrongSigns + 1
+        if user_sign == self.desired_sentence[self.desired_letter].upper() or (user_sign in self.similarSign and self.desired_sentence[self.desired_letter].upper in self.similarSign):
             self.desired_letter =  self.desired_letter + 1
+            self.consecutiveWrongSigns = 0
         green_half = "[color=00ff00]" + self.desired_sentence[0:self.desired_letter] + "[/color]"
-        red_half = "[color=000000]" + self.desired_sentence[self.desired_letter:len(self.desired_sentence)] + "[/color]"
+        if self.consecutiveWrongSigns < 15:
+            red_half = "[color=000000]" + self.desired_sentence[self.desired_letter:len(self.desired_sentence)] + "[/color]"
+        else:
+            red_half = "[color=ff0000]" + self.desired_sentence[self.desired_letter] + "[/color]" + "[color=000000]" + self.desired_sentence[self.desired_letter+1:len(self.desired_sentence)] + "[/color]"
         App.get_running_app().root.ids[self.current_screen].ids.text_box.text = green_half + red_half
         if self.desired_letter+1 >= len(self.desired_sentence):
-            print("GOT HERE")
-            print(len(self.sentence_array))
+            #print("GOT HERE")
+            #print(len(self.sentence_array))
             if self.desired_sentence[self.desired_letter] == "." and self.current_index < len(self.sentence_array):
-                print("Am I here??")
+               # print("Am I here??")
                 self.desired_letter = 0
                 self.desired_sentence = self.sentence_array[self.current_index].strip()
-                print(self.desired_sentence)
-                print(self.current_index)
+                #print(self.desired_sentence)
+                #print(self.current_index)
                 self.current_index = self.current_index + 1
                 App.get_running_app().root.ids[self.current_screen].ids.text_box.text = "[color=000000]" + self.desired_sentence + "[/color]"
                 return
