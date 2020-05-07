@@ -408,9 +408,15 @@ class TestingSoftware():
         if user_sign == self.desired_sentence[self.desired_letter].upper() or (user_sign in self.similarSign and self.desired_sentence[self.desired_letter].upper in self.similarSign):
             self.desired_letter =  self.desired_letter + 1
             self.consecutiveWrongSigns = 0
+            App.get_running_app().root.ids[self.current_screen].ids.hint_image.source = "logo.png"
         green_half = "[color=00ff00]" + self.desired_sentence[0:self.desired_letter] + "[/color]"
         if self.consecutiveWrongSigns < 15:
             red_half = "[color=000000]" + self.desired_sentence[self.desired_letter:len(self.desired_sentence)] + "[/color]"
+        elif self.consecutiveWrongSigns == 15:
+            red_half = "[color=ff0000]" + self.desired_sentence[self.desired_letter] + "[/color]" + "[color=000000]" + self.desired_sentence[self.desired_letter+1:len(self.desired_sentence)] + "[/color]"
+            print('Letters/' + self.desired_sentence[self.desired_letter] + '_hint.jpg')
+            App.get_running_app().root.ids[self.current_screen].ids.hint_image.source = "Letters/" + self.desired_sentence[self.desired_letter] + "_hint.jpg"
+            App.get_running_app().root.ids[self.current_screen].ids.hint_image.reload()
         else:
             red_half = "[color=ff0000]" + self.desired_sentence[self.desired_letter] + "[/color]" + "[color=000000]" + self.desired_sentence[self.desired_letter+1:len(self.desired_sentence)] + "[/color]"
         App.get_running_app().root.ids[self.current_screen].ids.text_box.text = green_half + red_half
