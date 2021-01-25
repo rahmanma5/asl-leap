@@ -7,16 +7,24 @@ This recognition system has several potential uses that could increase the level
 
 Digit was developed by:
 
--Colleen Kovar
+* Colleen Kovar
 
--Mashour Rahman
+* Mashour Rahman
 
--Zak Barbezat
+* Zak Barbezat
 
--Jacob Versaggi
+* Jacob Versaggi
 
--Wei Li
+* Wei Li
 
--Raymond Yung
+* Raymond Yung
 
 in the fall, winter, and spring quarters of 2019-2020 as a senior design project for the school of Computing and Infomatics at Drexel University
+
+## Documentation
+All the corresponding documentation for Digit can be found at the following links:
+
+* [Design Document](https://docs.google.com/document/d/1tTN_U3fB3LCssw2Sw7v2kFnPLVvjflNqOYrCP14hvgo/edit?usp=sharing)
+* [Test Plan](https://docs.google.com/document/d/1DhDDDm5j6Wy7vuxHCEWNYVQ2HguLRSoG0BxjCmNfi68/edit?usp=sharing)
+* [Software Requirements Specification](https://docs.google.com/document/d/1TVwlKaqStPSJdEE-DOA7fQdGGiPpRMHEVfnuTBjGGkg/edit?usp=sharing)
+* [Final Slideshow](https://drive.google.com/file/d/1ZZ3ptXUxk1wC3VHSxN4t6R6Ecc-Z0Syh/view?usp=sharing)
